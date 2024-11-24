@@ -1,6 +1,0 @@
-"""
-ALPACA API KEYS
-"""
-ALPACA_API_KEY = 'PKILD6H1LS2KJDH7RJS8'
-ALPACA_SECRET_KEY = 'Cnl4js0a6FRuhTugbCMeTqr7c8cx5FLxOUm8AlBf'
-ALPACA_BASE_URL = 'https://paper-api.alpaca.markets/'
