@@ -13,9 +13,8 @@ class EmotionlessRobot():
         """
         Initialize the EmotionlessRobot with the given parameters.
 
-        :param client_id: The client ID for the robot.
-        :param redirect_url: The redirect URL for the robot.
-        :param credentioal_path: The path to the credentials file.
+        :param api_key: Api key for the robot.
+        :param secret_key: Secret Key for the robot.
         :param trading_account: The trading account ID.
         """
         self.trading_account: str = trading_account
@@ -89,7 +88,7 @@ class EmotionlessRobot():
 
     def create_stock_frame(self):
         pass
-    
+
     def grab_current_quotes(self) -> dict:
         pass
 
