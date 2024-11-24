@@ -1,26 +1,13 @@
-import alpaca_trade_api as tradeapi
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from ta.trend import SMAIndicator  # Example for technical analysis
-import backtrader as bt
-from config import *
+from strategies.simple_rsi import simple_rsi_strategy
 
-api = tradeapi.REST(ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL, api_version='v2')
+def main():
+    # List of stocks to monitor
+    symbols = ['AAPL', 'TSLA', 'AMZN', 'MSFT', 'GOOGL']
 
-#Fetch account details
+    # Run the strategy for each symbol
+    for symbol in symbols:
+        print(f"Running strategy for {symbol}")
+        simple_rsi_strategy(symbol)
 
-try:
-    account = api.get_account()
-    print('Account ID', account.id)
-    print('Account Status', account.status)
-    print('Cash Balance', account.cash)
-    print('Equity', account.equity)
-except Exception as e:
-    print('Error fetching account details', str(e)) 
-
-
-
-
-
-
+    if __name__ == '__main__':
+        main()
