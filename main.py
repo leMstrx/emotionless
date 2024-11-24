@@ -9,5 +9,6 @@ def main():
         print(f"Running strategy for {symbol}")
         simple_rsi_strategy(symbol)
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    print("Bot is starting...")
+    main()

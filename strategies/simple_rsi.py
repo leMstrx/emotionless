@@ -7,7 +7,7 @@ def simple_rsi_strategy(symbol, period=14, oversold=30, overbought=70, qty=1):
     # Fetch historical data
     data = fetch_historical_data(symbol, timeframe="1D", limit=period+1)
     if data is None or data.empty:
-        print("No data to apply the stratgey")
+        print("No data to apply the strategy")
         return
     
     #Calculate RSI
