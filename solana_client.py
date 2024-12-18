@@ -63,9 +63,6 @@ class SolanaAsyncClient:
                         }
                         print(mint_info)
                         return mint_info
-
-                #else:
-                #    print("Unexpected transaction format or missing `message` key.")
         except KeyError as e:
             print(f"KeyError while parsing transaction: {e}")
         except Exception as e:
