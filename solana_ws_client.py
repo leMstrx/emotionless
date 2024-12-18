@@ -9,11 +9,14 @@ from solders.pubkey import Pubkey # type: ignore
 from solders.rpc.config import RpcTransactionLogsFilterMentions # type: ignore
 from solders.rpc.responses import LogsNotification, SubscriptionResult # type: ignore
 from config import WS_URL, TOKEN_PROGRAMM_ID
+from solana_client import SolanaAsyncClient
 
 class SolanaWSClient:
     def __init__(self):
         self.ws = None
         self.subscription_id = None
+        self.rpc_client = SolanaAsyncClient() #Integrate the RPC client directly in here to streamline
+        
 
     async def connect(self):
         self.ws = await connect(WS_URL)
@@ -38,30 +41,45 @@ class SolanaWSClient:
         For now its just detecting the instructions as proof of concept
         '''
         async for msg_list in self.ws:
-            print(f"Received message list: {msg_list}")
-            for msg in msg_list:
-                print(f"Received message: {msg}")
-                
-                if isinstance(msg, SubscriptionResult):
-                    # This is the response to our subscription request
-                    self.subscription_id = msg.result
-                    print(f"Subscribed with subscription id: {self.subscription_id}")
-                
-                elif isinstance(msg, LogsNotification):
-                    # This is a logs notification 
-                    logs = msg.result.value.logs #earlier: msg.params.result.value.logs
-                    for line in logs:  
-                        if 'InitializeMint' in line:
-                            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n+++ Detected InitializeMint Instruction +++\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-                            print(f"New Mint detected: {line}")
-                        '''
-                        TODO: Extract the mint address from the transaction context
-                        '''
+            try: 
+                #print(f"Received message list: {msg_list}")
+                for msg in msg_list:
+                    
+                    if isinstance(msg, SubscriptionResult):
+                        # This is the response to our subscription request
+                        self.subscription_id = msg.result
+                        #print(f"Subscribed with subscription id: {self.subscription_id}")
+                    
+                    elif isinstance(msg, LogsNotification):
+                        # This is a logs notification 
+                        logs = msg.result.value.logs #earlier: msg.params.result.value.logs
+                        if 'InitializeMint' in ' '.join(logs):
+                            print("\n\n\n\n\n\n\n\n\n\n+++ Detected InitializeMint Instruction +++\n")
+                            #print(f"Received message: {msg}")
+                            signature = msg.result.value.signature
+                            asyncio.create_task(self.handle_mint_event(signature))
+            except Exception as e:
+                print(f"Error while processing logs: {e}")
+        
+    async def handle_mint_event(self, signature: str):
+        #print(f"Processing transaction: {signature}")
+        mint_info = await self.rpc_client.get_transaction_details(signature)
+        if mint_info: 
+            print(f"Mint Adress: {mint_info['mint_address']}")
+            print(f"Creator: {mint_info['creator']}")
+            print(f"Freeze Authority: {mint_info['freeze_authority']}")
+            print(f"Decimals: {mint_info['decimals']}")
 
     async def close(self):
         '''
         Closes the websocket client & connection
         '''
-        if self.subscription_id is not None:
-            await self.ws.logs_unsubscribe(self.subscription_id)
-        await self.ws.close()
+        try: 
+            if self.subscription_id is not None:
+                await self.ws.logs_unsubscribe(self.subscription_id)
+            await self.ws.close()
+        except Exception as e: 
+            print(f"Error while closing WS connection: {e}")
+        finally: 
+            await self.rpc_client.close() #Also close the RPC Client
+        

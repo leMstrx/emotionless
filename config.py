@@ -6,7 +6,7 @@ RPC_URL = "https://api.devnet.solana.com"
 WS_URL = "wss://api.devnet.solana.com" # Can later be change to mainnet URL: "wss://api.mainnet-beta.solana.com"
 
 #Transaction commitment level: can be "processed", "confirmed", "finalized"
-COMMITMENT = "processed" # TODO: this should later be put to confirmed
+COMMITMENT = "confirmed" # TODO: this should later be put to confirmed
 
 #Minimum liquidity or supply filters (just placeholders for now)
 MINIMUM_LIQUIDITY = 1000 #placeholder: tokens must have at least 1000 in supply

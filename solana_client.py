@@ -5,6 +5,7 @@ This will later be called from the main.py (emotionless.py)
 import asyncio
 from solana.rpc.async_api import AsyncClient
 from solders.pubkey import Pubkey # type: ignore
+from solders.transaction_status import EncodedConfirmedTransactionWithStatusMeta # type: ignore
 from config import RPC_URL, COMMITMENT, TOKEN_PROGRAMM_ID
 import base64
 
@@ -23,46 +24,54 @@ class SolanaAsyncClient:
         '''
         response = await self.client.get_latest_blockhash()
         return response.value.blockhash
+
     
-    async def fetch_token_mint_accounts(self):
-        '''
-        Fetch all accounts owned by the token program and return those that are like mint accounts. 
-        For now, it will do the follwing:
-        - Fetch program accounts of the token programs
-        - Filter them by the exepected data size of a mint account (82 bytes)
-        - Return their public keys
-        Later this will be refined to look for newly created tokens and incorporate safety procedures
-        '''
-        resp = await self.client.get_program_accounts(
-            self.token_program_pubkey, 
-            encoding='base64',
-            filters=[82])
+    async def get_transaction_details(self, signature: str):
+        """
+        Fetch and parse transaction details from the RPC endpoint.
+        """
+        response = await self.client.get_transaction(
+            tx_sig=signature,
+            max_supported_transaction_version=0,
+            encoding="jsonParsed"  # Ensure we get parsed data
+        )
+        
+        if response.value is None:
+            print("No transaction details found.")
+            return None
 
-        mint_accounts = []
-        if resp.value:
-            for acc_info in resp.value:
-                # acc_info looks like:
-                # {
-                #   "pubkey": "...",
-                #   "account": {
-                #       "data": ["base64_encoded_data", "base64"],
-                #       "executable": false,
-                #       "lamports": ...,
-                #       "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-                #       "rentEpoch": ...
-                #   }
-                # } 
-                data_b64 = acc_info.account.data[0] #base 64 encoded data
-                #Decode the base64 data
-                data = base64.b64decode(data_b64)
+        # Access the parsed transaction details
+        try:
 
-                #Mint accounts for SPL tokens that are 82 bytes long
-                # If it's exactly 82 bytes, let's assume it's a mint account
-                if len(data) == 82:
-                    mint_accounts.append(acc_info.pubkey)
+            instructions = response.value.transaction.transaction.message.instructions 
+                
+            for i in instructions:
+                if str(i.program_id) == TOKEN_PROGRAMM_ID and i.parsed['type'] in ('initializeMint', 'initializeMint2'):
+                    print(f"++++ Found new potential MemeCoin mint transaction ++++")
+                    print(f"\nPrint Instruction:{i}")
+                    # Check if this instruction is of type `initializeMint`
+                    parsed_data = i.parsed
+                    print(f"Print Parsed Data:{parsed_data}")
+                    print(f"Type: {parsed_data['type']}")
+                    if parsed_data['type'] in ('initializeMint', 'initializeMint2'):
+                        info = parsed_data["info"]
+                        mint_info = {
+                            "mint_address": info["mint"],
+                            "creator": info["mintAuthority"],
+                            "freeze_authority": info.get("freezeAuthority"),
+                            "decimals": info["decimals"],
+                        }
+                        print(mint_info)
+                        return mint_info
 
-        return mint_accounts
-    
+                #else:
+                #    print("Unexpected transaction format or missing `message` key.")
+        except KeyError as e:
+            print(f"KeyError while parsing transaction: {e}")
+        except Exception as e:
+            print(f"Error while processing transaction: {e}")
+
+        return None  # If no `initializeMint` instruction was found
 
     async def close(self):
         '''
