@@ -10,9 +10,11 @@
 
 ### What is left to do?
 - Creating own wallet
+- Create Fetch_new_token_accounts method with logic to find newly created token accounts
 - Connecting new Keypairs
 - Connection to Solana Blockchain
 - Safety Checks
+- Switch from devnet to beta-mainnet
 
 
 #### Daily Updates: 
