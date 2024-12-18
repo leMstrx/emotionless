@@ -18,6 +18,31 @@
 - Switch from devnet to beta-mainnet
 - Run Bot in a task
 
+### ROADMAP -> "Leitfaden"
+1. Enhance Log Parsing
+    - InitializeMint can be used to obtain information of mint adress and **creator**
+2. Filter by Token Metadata
+    - Liquidity Requirements: Query the newly created token's metadata and ensure it meets minimum liquidity or supply thresholds before interacting with it.
+    - Blacklists/Whitelists: Maintain a Lists of Known Scams that are incorporated at all times
+3. Automate Buying Newly Minted Tokens
+    - Integrate with the Solana RPC API to interact with the mint
+    - Automate **Purchase** process for promising tokens:
+        1. Fetch the token's associated account details
+        2. Confirm liquidity checks and check if tradings pairs exists on DEX like Orca Radyium (maybe Pump.fun because the rest would already be too late)
+        3. Place a buy order **ONLY IF ALL CRITERIAS ARE MET**
+4. Integrate Trading Strategies
+    - Initial Buy: Automatically buy a small amount of the new token as soon as it's detected (if it checks all safety procedures)
+    - Risk Management: Implement Stop Loss (maybe trailing) and take profit rules to manage risk
+    - Timing and Volume: Avoid buying large volumes that might affect liquidity or prices adversely
+5. Performance Optimization
+    - Run the bot asynchronously to handle multiple events and tokens simultaneously
+    - Use a high performance Solana RPC node or service to ensure low-latency responses
+6. Logging and Monitoring
+    - Implement a proper logging to debug and monitor the bot's activity (maybe streamlit or excel)
+    - Set up alerts for detected mints und trades
+7. Security and Safety Measures
+    - Use a secure wallet for interactions 
+    - Implement safeguards to avoid buying scam tokens or tokens with liquidity traps
 
 #### Daily Updates: 
 [18.12.2024]
