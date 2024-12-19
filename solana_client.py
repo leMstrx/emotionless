@@ -24,6 +24,7 @@ class SolanaAsyncClient:
         '''
         response = await self.client.get_latest_blockhash()
         return response.value.blockhash
+    
 
     
     async def get_transaction_details(self, signature: str):
@@ -69,6 +70,18 @@ class SolanaAsyncClient:
             print(f"Error while processing transaction: {e}")
 
         return None  # If no `initializeMint` instruction was found
+    
+    # async def get_token_holders
+    # TODO
+
+    # get wallet transactions
+    # TODO 
+
+    # Simulate Sell
+    # TODO
+
+    # Get Liquidity
+    # TODO
 
     async def close(self):
         '''

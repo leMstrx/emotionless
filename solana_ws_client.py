@@ -10,6 +10,7 @@ from solders.rpc.config import RpcTransactionLogsFilterMentions # type: ignore
 from solders.rpc.responses import LogsNotification, SubscriptionResult # type: ignore
 from config import WS_URL, TOKEN_PROGRAMM_ID
 from solana_client import SolanaAsyncClient
+from safety_checks import general_safety_check #Relevant Safety Checks
 
 class SolanaWSClient:
     def __init__(self):
@@ -69,6 +70,15 @@ class SolanaWSClient:
             print(f"Creator: {mint_info['creator']}")
             print(f"Freeze Authority: {mint_info['freeze_authority']}")
             print(f"Decimals: {mint_info['decimals']}")
+
+            #Perform the general safety checks 
+            is_safe = await general_safety_check(self.rpc_client, mint_info)
+            if is_safe: 
+                print(f"Mint {mint_info['mint_address']} passed all safety checks. Proceeding further")
+            else: 
+                print(f"Mint {mint_info['mint_address']} failed safety checks. Ignoring this token.")
+            
+
 
     async def close(self):
         '''

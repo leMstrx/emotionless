@@ -10,7 +10,7 @@
 
 ### What is left to do?
 - Creating own wallet
-- Create Fetch_new_token_accounts method with logic to find newly created token accounts
+- Create Fetch_new_token_accounts method with logic to find newly created token accounts -> Difficult with rate limiting
 - COMMITMENT to "confirmed" 
 - Connecting new Keypairs
 - Connection to Solana Blockchain

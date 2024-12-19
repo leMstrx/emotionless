@@ -2,8 +2,11 @@
 Contains all the important URLs and other Configurations
 '''
 #For later if testing is over then use this: "https://api.mainnet-beta.solana.com"
-RPC_URL = "https://api.devnet.solana.com"
-WS_URL = "wss://api.devnet.solana.com" # Can later be change to mainnet URL: "wss://api.mainnet-beta.solana.com"
+#RPC_URL = "https://api.devnet.solana.com"
+RPC_URL = "https://api.mainnet-beta.solana.com"
+
+#WS_URL = "wss://api.devnet.solana.com" # Can later be change to mainnet URL: "wss://api.mainnet-beta.solana.com"
+WS_URL = "wss://api.mainnet-beta.solana.com"
 
 #Transaction commitment level: can be "processed", "confirmed", "finalized"
 COMMITMENT = "confirmed" # TODO: this should later be put to confirmed
