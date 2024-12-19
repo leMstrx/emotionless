@@ -61,6 +61,9 @@ class SolanaWSClient:
                             print("\n\n\n\n\n\n\n\n\n\n+++ Detected InitializeMint Instruction +++\n")
                             #print(f"Received message: {msg}")
                             asyncio.create_task(self.handle_mint_event(signature))
+
+                            #Add a small delay to avoid spamming the RPC endpoint
+                            await asyncio.sleep(1) #Maybe adjust timing to improve performance
             except Exception as e:
                 print(f"Error while processing logs: {e}")
         
