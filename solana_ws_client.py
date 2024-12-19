@@ -54,10 +54,12 @@ class SolanaWSClient:
                     elif isinstance(msg, LogsNotification):
                         # This is a logs notification 
                         logs = msg.result.value.logs #earlier: msg.params.result.value.logs
-                        if 'InitializeMint' in ' '.join(logs):
+                        signature = msg.result.value.signature
+                        
+                        # Filter for InitializeMint and InitializeMint2 instructions
+                        if any(instr in " ".join(logs) for instr in ["InitializeMint", "InitializeMint2"]):
                             print("\n\n\n\n\n\n\n\n\n\n+++ Detected InitializeMint Instruction +++\n")
                             #print(f"Received message: {msg}")
-                            signature = msg.result.value.signature
                             asyncio.create_task(self.handle_mint_event(signature))
             except Exception as e:
                 print(f"Error while processing logs: {e}")
