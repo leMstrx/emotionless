@@ -11,10 +11,10 @@
 ### What is left to do?
 - Creating own wallet
 - Create Fetch_new_token_accounts method with logic to find newly created token accounts -> Difficult with rate limiting
-- COMMITMENT to "confirmed" 
+- COMMITMENT to "confirmed" DONE
 - Connecting new Keypairs
 - Connection to Solana Blockchain
-- Safety Checks
+- Safety Checks 
 - Switch from devnet to beta-mainnet
 - Run Bot in a task
 
@@ -48,3 +48,8 @@
 [18.12.2024]
 - Decision Bot will be async built from the start
 - Switched to Websocket built
+
+[20.12.2024]
+- Implemented Basic Safety Checks
+- Now problem with RPC Rate Limiting -> Needs to be solved
+- Switched to Mainnet
