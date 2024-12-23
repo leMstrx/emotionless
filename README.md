@@ -53,3 +53,6 @@
 - Implemented Basic Safety Checks
 - Now problem with RPC Rate Limiting -> Needs to be solved
 - Switched to Mainnet
+
+[23.12.2024]
+- Serious problems with rate limitting 
