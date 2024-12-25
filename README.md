@@ -55,4 +55,4 @@
 - Switched to Mainnet
 
 [23.12.2024]
-- Serious problems with rate limitting 
+- Serious problems with rate limiting 
