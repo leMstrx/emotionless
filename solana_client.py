@@ -4,6 +4,7 @@ This will later be called from the main.py (emotionless.py)
 '''
 import asyncio
 from solana.rpc.async_api import AsyncClient
+from solana.exceptions import SolanaRpcException
 from solders.pubkey import Pubkey # type: ignore
 from solders.transaction_status import EncodedConfirmedTransactionWithStatusMeta # type: ignore
 from config import RPC_URL, COMMITMENT, TOKEN_PROGRAMM_ID
@@ -31,11 +32,21 @@ class SolanaAsyncClient:
         """
         Fetch and parse transaction details from the RPC endpoint.
         """
-        response = await self.client.get_transaction(
-            tx_sig=signature,
-            max_supported_transaction_version=0,
-            encoding="jsonParsed"  # Ensure we get parsed data
-        )
+        try:
+            response = await self.client.get_transaction(
+                tx_sig=signature,
+                max_supported_transaction_version=0,
+                encoding="jsonParsed"  # Ensure we get parsed data
+            )
+        except SolanaRpcException as exc:
+            # if it's a 429 error, do a short backoff and retry
+            if '429' in str(exc):
+                print("Hit rate limit. Retrying in 2 seconds.")
+                await asyncio.sleep(2)
+                return await self.get_transaction_details(signature)
+            else:
+                print(f"Unhandled RPC Exception: {exc}")
+                return None
         
         if response.value is None:
             print("No transaction details found.")

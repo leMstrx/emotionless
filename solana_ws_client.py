@@ -11,16 +11,23 @@ from solders.rpc.responses import LogsNotification, SubscriptionResult # type: i
 from config import WS_URL, TOKEN_PROGRAMM_ID
 from solana_client import SolanaAsyncClient
 from safety_checks import general_safety_check #Relevant Safety Checks
+from websockets.exceptions import ConnectionClosedError
+from solana.exceptions import SolanaRpcException
 
 class SolanaWSClient:
     def __init__(self):
         self.ws = None
         self.subscription_id = None
         self.rpc_client = SolanaAsyncClient() #Integrate the RPC client directly in here to streamline
-        
+        self.seen_signatures = set() #Keep track of seen signatures to avoid duplicates
 
     async def connect(self):
-        self.ws = await connect(WS_URL)
+        print("Conntecting to WS endpoint...")
+        self.ws = await connect(
+            WS_URL,
+            ping_interval=20, #send a ping every 30s 
+            ping_timeout=30 #if no ping within 30s then timeout (clsoe the connection)
+        )
 
     async def subscribe_to_token_program_logs(self):
         #Subscribe to logs mentioning the token program
@@ -39,6 +46,7 @@ class SolanaWSClient:
         logs is list of strings logged by the program during transaction execuction
         TODO: - Look for something that indication InitializeMint Instruction
               - Figure out which account the mint is 
+              - Now also checks for seen duplicates
         For now its just detecting the instructions as proof of concept
         '''
         async for msg_list in self.ws:
@@ -55,6 +63,10 @@ class SolanaWSClient:
                         # This is a logs notification 
                         logs = msg.result.value.logs #earlier: msg.params.result.value.logs
                         signature = msg.result.value.signature
+                        if signature in self.seen_signatures:
+                            continue
+                        self.seen_signatures.add(signature)
+                        
                         
                         # Filter for InitializeMint and InitializeMint2 instructions
                         if any(instr in " ".join(logs) for instr in ["InitializeMint", "InitializeMint2"]):
@@ -63,7 +75,7 @@ class SolanaWSClient:
                             asyncio.create_task(self.handle_mint_event(signature))
 
                             #Add a small delay to avoid spamming the RPC endpoint
-                            await asyncio.sleep(1) #Maybe adjust timing to improve performance
+                            await asyncio.sleep(2) #Maybe adjust timing to improve performance
             except Exception as e:
                 print(f"Error while processing logs: {e}")
         
@@ -83,7 +95,28 @@ class SolanaWSClient:
             else: 
                 print(f"Mint {mint_info['mint_address']} failed safety checks. Ignoring this token.")
             
-
+    async def listen_for_new_mints_forever(self):
+        '''
+        Continuously listens for new mints also if the Websockets closes
+        '''
+        while True:
+            try:
+                await self.connect()
+                await self.subscribe_to_token_program_logs()
+                await self.listen_for_new_mints()
+            except ConnectionClosedError as cce:
+                print(f"Connection closed unexpectedly: {cce}")
+                print("Reconnecting...")
+            except (OSError, SolanaRpcException) as e:
+                print(f"Network or RPC error occurred: {e}")
+                print("Reconnecting...")
+            except Exception as e:
+                print(f"Unexpected error occurred: {e}")
+                print("Reconnecting...")
+            finally:
+                await self.close()
+            print(f"Reconnecting in 5 seconds...")
+            await asyncio.sleep(5)
 
     async def close(self):
         '''

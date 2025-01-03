@@ -9,11 +9,8 @@ from solana_ws_client import SolanaWSClient
 async def main():
     #Initialization of WS Client
     ws_client = SolanaWSClient()
-    await ws_client.connect()
-    await ws_client.subscribe_to_token_program_logs()
-
     try:
-        await ws_client.listen_for_new_mints()
+        await ws_client.listen_for_new_mints_forever()
     except KeyboardInterrupt:  
         print("Shutting down...")
     finally:
