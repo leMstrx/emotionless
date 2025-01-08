@@ -56,3 +56,11 @@
 
 [23.12.2024]
 - Serious problems with rate limiting 
+
+[06.01.2024]
+- Problems with Connection closings#
+
+[08.01.2024]
+- Problems not yet solved
+
+PROJECT FOR NOW ON HOLD

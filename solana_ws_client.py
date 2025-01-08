@@ -25,8 +25,8 @@ class SolanaWSClient:
         print("Conntecting to WS endpoint...")
         self.ws = await connect(
             WS_URL,
-            ping_interval=20, #send a ping every 30s 
-            ping_timeout=30 #if no ping within 30s then timeout (clsoe the connection)
+            ping_interval=60, #send a ping every 30s 
+            ping_timeout=2000 #if no ping within 30s then timeout (clsoe the connection)
         )
 
     async def subscribe_to_token_program_logs(self):
